@@ -492,15 +492,15 @@
           );
           
           // Use a function to ensure the DOM is ready before rendering
-    const renderApp = () => {
-      const rootElement = document.getElementById('root');
-      if (rootElement) {
-        const root = ReactDOM.createRoot(rootElement);
-        root.render(<AppContainer />);
-      }
-    };
+const renderApp = () => {
+  const rootElement = document.getElementById('root');
+  if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<AppContainer />);
+  }
+};
 
-    document.addEventListener('DOMContentLoaded', renderApp);
-  </script>
+document.addEventListener('DOMContentLoaded', renderApp);
+</script>
 </body>
 </html>
