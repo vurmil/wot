@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World of Tanks Progress Calculator</title>
+    
+    <meta name="description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta name="keywords" content="World of Tanks, WOT, calculator, Battle Pass, Marathon, points, progress, event, player, tanks">
+    <meta property="og:title" content="World of Tanks Progress Calculator">
+    <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
+    <meta property="og:url" content="https://twoja-nazwa-uzytkownika.github.io/nazwa-repozytorium/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="World of Tanks Progress Calculator">
+    <meta name="twitter:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta name="twitter:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const BG_COLOR = 'bg-gray-900';
+        const TEXT_COLOR = 'text-gray-200';
+        const CARD_BG = 'bg-gray-800';
+        const BORDER_COLOR = 'border-gray-700';
+
+        const eventData = {
+          battlepass17: {
+            title: 'battlepass season XVII calculator',
+            mode: 'Battlepass',
+            totalPoint: 7500,
+            timespan: {
+              ASIA: [new Date('2025/06/03 07:30:00 UTC+8'), new Date('2025/09/03 05:30:00 UTC+8')],
+              CN: [new Date('2025/06/05 08:30:00 UTC+8'), new Date('2025/09/04 01:59:00 UTC+8')],
+              US: [new Date('2025/06/03 06:30:00 UTC-7'), new Date('2025/09/04 07:30:00 UTC-7')],
+              EU: [new Date('2025/06/04 09:00:00 UTC+2'), new Date('2025/09/04 00:30:00 UTC+2')],
+            },
+          },
+          battlepass15year: {
+            title: '15 anniversary field festival calculator',
+            mode: 'Marathon',
+            totalPoint: 2500,
+            timespan: {
+              ASIA: [new Date('2025/08/08 08:00:00 UTC+8'), new Date('2025/09/01 08:00:00 UTC+8')],
+              CN: [new Date('2025/08/08 08:00:00 UTC+8'), new Date('2025/09/01 08:00:00 UTC+8')],
+              US: [new Date('2025/08/08 22:00:00 UTC-7'), new Date('2025/09/01 22:00:00 UTC-7')],
+              EU: [new Date('2025/08/08 12:00:00 UTC+2'), new Date('2025/09/01 12:00:00 UTC+2')],
+            },
+          },
+        };
+
+        const CalendarIcon = () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512"
+            className="w-4 h-4"
+            fill="currentColor"
+          >
+            <path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v32H0V112c0-26.5 21.5-48 48-48h48V32c0-17.7 14.3-32 32-32zm0 128H32V480c0 17.7 14.3 32 32 32H384c17.7 0 32-14.3 32-32V128H128zm96 64c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zm-96 96c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7 14.3 32 32 32s32-14.3 32-32V288z"/>
+          </svg>
+        );
+
+        const InfoIcon = () => (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            className="w-4 h-4"
+            fill="currentColor"
+          >
+            <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zm32 224a32 32 0 1 1 -64 0 32 32 0 1 1 64 0z"/>
+          </svg>
+        );
+
+
+        const App = () => {
+          const { useState, useEffect } = React;
+          const [activeEvent, setActiveEvent] = useState('battlepass17');
+          const [server, setServer] = useState('EU');
+          const [currentProgress, setCurrentProgress] = useState(() => {
+            try {
+              const savedProgress = localStorage.getItem('wot_progress');
+              return savedProgress !== null ? parseInt(savedProgress, 10) : 0;
+            } catch (error) {
+              console.error("Failed to read from localStorage:", error);
+              return 0;
+            }
+          });
+          const [timeRemaining, setTimeRemaining] = useState(null);
+          const [dailyAverage, setDailyAverage] = useState(0);
+          const [dailyMissions, setDailyMissions] = useState(0);
+          const [gamePoints, setGamePoints] = useState(0);
+          const [daysPerWeek, setDaysPerWeek] = useState(7);
+          const [generatedTip, setGeneratedTip] = useState('');
+          const [isLoading, setIsLoading] = useState(false);
+
+          useEffect(() => {
+            try {
+              localStorage.setItem('wot_progress', currentProgress);
+            } catch (error) {
+              console.error("Failed to save to localStorage:", error);
+            }
+          }, [currentProgress]);
+
+          const currentEvent = eventData[activeEvent];
+
+          useEffect(() => {
+            const updateCalculations = () => {
+              const now = new Date();
+              const eventStart = currentEvent.timespan[server][0];
+              const eventEnd = currentEvent.timespan[server][1];
+              const timeRemainingMs = eventEnd - now;
+
+              if (timeRemainingMs < 0) {
+                setTimeRemaining('Event has ended!');
+                return;
+              }
+              if (now < eventStart) {
+                setTimeRemaining('Event has not started yet.');
+                return;
+              }
+
+              const remainingDays = Math.max(
+                0,
+                Math.floor(timeRemainingMs / (1000 * 60 * 60 * 24))
+              );
+              const remainingHours = Math.floor(
+                (timeRemainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+              );
+              const remainingMinutes = Math.floor(
+                (timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60)
+              );
+              const remainingSeconds = Math.floor(
+                (timeRemainingMs % (1000 * 60)) / 1000
+              );
+
+              setTimeRemaining(
+                `${remainingDays} days, ${remainingHours}:${String(
+                  remainingMinutes
+                ).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')} to go`
+              );
+
+              const totalPointsForEvent = currentEvent.totalPoint;
+              
+              const totalPlayingDays = remainingDays * (daysPerWeek / 7);
+              const dailyNeeded = (totalPointsForEvent - currentProgress) / (totalPlayingDays || 1);
+              setDailyAverage(Math.ceil(dailyNeeded));
+            };
+
+            updateCalculations();
+            const interval = setInterval(updateCalculations, 1000);
+            return () => clearInterval(interval);
+          }, [activeEvent, currentProgress, daysPerWeek, server]);
+
+          const calculateTotalDailyPoints = () => {
+            let missionPoints = 0;
+            switch (dailyMissions) {
+                case 1:
+                    missionPoints = 10;
+                    break;
+                case 2:
+                    missionPoints = 10 + 15;
+                    break;
+                case 3:
+                    missionPoints = 10 + 15 + 20;
+                    break;
+                case 4:
+                    missionPoints = 10 + 15 + 20 + 25;
+                    break;
+                default:
+                    missionPoints = 0;
+            }
+            return missionPoints;
+          };
+
+          const calculateGamesNeeded = () => {
+            const pointsFromDailyActivities = calculateTotalDailyPoints();
+            const pointsNeededFromBattles = Math.max(0, dailyAverage - pointsFromDailyActivities);
+            const gamePointsNum = parseFloat(gamePoints) || 1;
+            return Math.ceil(pointsNeededFromBattles / gamePointsNum);
+          }
+          
+          const getTacticalTip = async () => {
+            setIsLoading(true);
+            setGeneratedTip('');
+            const prompt = `You are a World of Tanks game expert. Based on the calculator data, write a short, no more than two-sentence, motivational tactical tip for the player. Take into account that the player has ${currentProgress} progress points and needs an average of ${dailyAverage} points per day to reach their goal in the "${currentEvent.title}" event, which is set to end in ${Math.max(0, Math.floor((currentEvent.timespan[server][1] - new Date()) / (1000 * 60 * 60 * 24)))} days. Focus on strategy, for example: playing premium tanks, completing daily missions, or prioritizing endurance points. Start the answer with "Tip:".`;
+            
+            const payload = {
+              contents: [{
+                parts: [{ text: prompt }]
+              }]
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            try {
+              const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+              });
+              const result = await response.json();
+              const tip = result.candidates?.[0]?.content?.parts?.[0]?.text || 'Error: Failed to generate tip.';
+              setGeneratedTip(tip);
+            } catch (error) {
+              console.error("Error generating tip:", error);
+              setGeneratedTip('Error: Failed to connect to generation service.');
+            } finally {
+              setIsLoading(false);
+            }
+          };
+
+          const renderCalculator = () => {
+            const totalPoints = currentEvent.totalPoint;
+            const progressPercentage = (currentProgress / totalPoints) * 100;
+            const pointsFromDailyActivities = calculateTotalDailyPoints();
+            const newDailyAverage = Math.max(0, dailyAverage - pointsFromDailyActivities);
+            const gamesNeeded = calculateGamesNeeded();
+            let currentLevel = 0;
+            if (currentEvent.mode === 'Battlepass') {
+              currentLevel = Math.min(75, Math.floor(currentProgress / 100) + 1);
+            } else {
+              currentLevel = Math.min(50, Math.floor(currentProgress / 50) + 1);
+            }
+            
+            const now = new Date();
+            const eventStart = currentEvent.timespan[server][0];
+            const eventEnd = currentEvent.timespan[server][1];
+            const totalDurationMs = eventEnd - eventStart;
+            const elapsedMs = now - eventStart;
+            const targetProgressPercentage = (elapsedMs / totalDurationMs) * 100;
+            const progressStatus = progressPercentage - targetProgressPercentage;
+
+            const handleProgressChange = (value) => {
+              const numericValue = parseInt(value, 10);
+              if (!isNaN(numericValue) && numericValue >= 0 && numericValue <= totalPoints) {
+                setCurrentProgress(numericValue);
+              }
+              if (value === '') {
+                setCurrentProgress(0);
+              }
+            };
+
+            return (
+              <div className="flex flex-col items-center p-6 space-y-6">
+                <h2 className="text-xl font-bold text-center">{currentEvent.title}</h2>
+                <div className="w-full space-y-2">
+                    <div
+                        className={`w-full h-8 rounded-full ${BG_COLOR} relative border-2 ${BORDER_COLOR} overflow-hidden`}
+                    >
+                        <div
+                            className={`h-full absolute top-0 left-0 bg-amber-400 bg-opacity-30`}
+                            style={{ width: `${Math.min(100, targetProgressPercentage)}%` }}
+                        ></div>
+                        <div
+                            className={`${progressPercentage > targetProgressPercentage ? 'bg-green-500' : 'bg-red-600'} h-full rounded-full transition-all duration-500 ease-out relative z-10`}
+                            style={{ width: `${progressPercentage}%` }}
+                        ></div>
+                        <span className="absolute inset-0 flex items-center justify-center font-bold text-sm z-20">
+                            {Math.round(progressPercentage)}%
+                        </span>
+                    </div>
+                    <div className="text-center">
+                        {progressPercentage >= 100 ? (
+                            <p className="text-green-400 font-bold">
+                                Congratulations! Goal reached!
+                            </p>
+                        ) : progressStatus > 0 ? (
+                            <p className="text-green-400 font-bold">
+                                Ahead of target by {progressStatus.toFixed(1)}%!
+                            </p>
+                        ) : (
+                            <p className="text-red-400 font-bold">
+                                Behind target by {(progressStatus * -1).toFixed(1)}%.
+                            </p>
+                        )}
+                    </div>
+                </div>
+                <div className="w-full">
+                  <label className="block mb-2 text-sm font-medium">
+                    Your current progress (points):
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max={totalPoints}
+                    value={currentProgress}
+                    onChange={(e) => handleProgressChange(e.target.value)}
+                    className="w-full p-2 mb-4 rounded-lg bg-gray-700 text-center"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max={totalPoints}
+                    value={currentProgress}
+                    onChange={(e) => setCurrentProgress(parseInt(e.target.value))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-700"
+                  />
+                  <div className="flex justify-between text-sm mt-2">
+                    <span>0</span>
+                    <span>{currentProgress.toLocaleString()} / {totalPoints.toLocaleString()}</span>
+                  </div>
+                </div>
+
+                <div className="grid w-full grid-cols-2 gap-4 text-center">
+                  <div className={`${CARD_BG} p-4 rounded-lg`}>
+                    <p className="text-sm">{currentEvent.mode === 'Battlepass' ? 'Level' : 'Stage'}</p>
+                    <h3 className="text-3xl font-extrabold">{currentLevel}</h3>
+                  </div>
+                  <div className={`${CARD_BG} p-4 rounded-lg`}>
+                    <p className="text-sm">Daily average</p>
+                    <h3 className="text-3xl font-extrabold">
+                      {dailyAverage.toLocaleString()}
+                    </h3>
+                  </div>
+                </div>
+                
+                <div className="w-full p-4 rounded-lg bg-gray-700">
+                    <h3 className="text-lg font-bold mb-2">Daily Calculations</h3>
+                    <div className="mb-4">
+                        <label className="block text-sm mb-1">
+                            Days played per week: <span className="font-bold">{daysPerWeek}</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="1"
+                            max="7"
+                            value={daysPerWeek}
+                            onChange={(e) => setDaysPerWeek(parseInt(e.target.value))}
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm mb-1">
+                            Daily Missions: <span className="font-bold">{dailyMissions}</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="4"
+                            value={dailyMissions}
+                            onChange={(e) => setDailyMissions(parseInt(e.target.value))}
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                        />
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-sm mb-1">Points from battles (average):</label>
+                        <input
+                            type="number"
+                            min="0"
+                            value={gamePoints}
+                            onChange={(e) => setGamePoints(Math.max(0, parseInt(e.target.value, 10)))}
+                            className="w-full p-2 rounded-lg bg-gray-600 text-center"
+                        />
+                    </div>
+                    <div className="text-center text-lg font-bold">
+                        <p>Points from daily missions: {pointsFromDailyActivities}</p>
+                        <p>Points needed from battles: {newDailyAverage > 0 ? newDailyAverage.toLocaleString() : 0}</p>
+                        <p className="mt-2">Estimated battles: {gamesNeeded}</p>
+                    </div>
+                </div>
+              </div>
+            );
+          };
+
+          const AppContainer = () => (
+            <div
+              className={`min-h-screen ${BG_COLOR} ${TEXT_COLOR} font-sans flex items-center justify-center p-4`}
+            >
+              <div className="w-full max-w-2xl p-6 space-y-6 rounded-xl shadow-2xl bg-gray-900 border-2 border-red-700">
+                <div className="flex flex-col items-center space-y-2">
+                  <img src="https://placehold.co/100x100/FF0000/FFFFFF?text=WOT" alt="WOT Logo" className="rounded-full" />
+                  <h1 className="text-4xl font-extrabold text-red-600">
+                    WOT Calculator
+                  </h1>
+                  <p className="text-center text-gray-400">
+                    Track your progress in World of Tanks events!
+                  </p>
+                </div>
+
+                <div className="flex justify-center space-x-4">
+                  <button
+                    className={`px-4 py-2 font-bold rounded-lg transition-all duration-300 ${
+                      activeEvent === 'battlepass17'
+                        ? 'bg-red-600 text-white shadow-lg'
+                        : 'bg-gray-700 text-gray-300 hover:bg-red-700'
+                    }`}
+                    onClick={() => {
+                      setActiveEvent('battlepass17');
+                      setCurrentProgress(0);
+                      setGeneratedTip('');
+                    }}
+                  >
+                    Battle Pass XVII
+                  </button>
+                  <button
+                    className={`px-4 py-2 font-bold rounded-lg transition-all duration-300 ${
+                      activeEvent === 'battlepass15year'
+                        ? 'bg-red-600 text-white shadow-lg'
+                        : 'bg-gray-700 text-gray-300 hover:bg-red-700'
+                    }`}
+                    onClick={() => {
+                      setActiveEvent('battlepass15year');
+                      setCurrentProgress(0);
+                      setGeneratedTip('');
+                    }}
+                  >
+                    Marathon
+                  </button>
+                </div>
+
+                <div className="flex justify-center space-x-2 text-sm text-gray-400">
+                  {Object.keys(currentEvent.timespan).map((serverKey) => (
+                    <button
+                      key={serverKey}
+                      className={`px-3 py-1 rounded-full font-bold transition-colors ${
+                        server === serverKey ? 'bg-red-600 text-white' : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
+                      onClick={() => setServer(serverKey)}
+                    >
+                      {serverKey}
+                    </button>
+                  ))}
+                </div>
+
+                <div
+                  className={`${CARD_BG} p-6 rounded-xl shadow-inner border-2 ${BORDER_COLOR}`}
+                >
+                  {renderCalculator()}
+                </div>
+
+                <div className="p-4 rounded-lg bg-gray-800 border border-gray-700">
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <CalendarIcon />
+                    <p>{timeRemaining}</p>
+                  </div>
+                </div>
+
+                <div className="p-6 space-y-4 rounded-xl shadow-inner bg-gray-800 border-2 border-gray-700">
+                  <h2 className="text-xl font-bold text-center">
+                    Get a ✨Tactical Tip
+                  </h2>
+                  <button
+                    className={`w-full py-3 rounded-lg font-bold transition-all duration-300 ${
+                      isLoading
+                        ? 'bg-gray-600 cursor-not-allowed'
+                        : 'bg-red-600 hover:bg-red-700 shadow-lg'
+                    }`}
+                    onClick={getTacticalTip}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Generating...' : 'Generate ✨Tip'}
+                  </button>
+                  {generatedTip && (
+                    <p className="text-center italic mt-4 text-sm text-gray-400">
+                      {generatedTip}
+                    </p>
+                  )}
+                </div>
+
+                <div className="p-4 rounded-lg bg-gray-800 border border-gray-700">
+                  <div className="flex items-center space-x-2 text-gray-400">
+                    <InfoIcon />
+                    <p>
+                      Note: The data is for demonstration purposes. Enter your own values for accurate calculations.
+                    </p></div>
+                </div>
+              </div>
+            </div>
+          );
+          
+          ReactDOM.render(<AppContainer />, document.getElementById('root'));
+        };
+
+        
+    </script>
+</body>
+</html>
