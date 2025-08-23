@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World of Tanks Progress Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World of Tanks Progress Calculator</title>
 
-    <meta name="description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
-    <meta name="keywords" content="World of Tanks, WOT, calculator, Battle Pass, Marathon, points, progress, event, player, tanks">
-    <meta property="og:title" content="World of Tanks Progress Calculator">
-    <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
-    <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
-    <meta property="og:url" content="https://vurmil.github.io/wot/">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="World of Tanks Progress Calculator">
-    <meta name="twitter:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
-    <meta name="twitter:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
+  <meta name="description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+  <meta name="keywords" content="World of Tanks, WOT, calculator, Battle Pass, Marathon, points, progress, event, player, tanks">
+  <meta property="og:title" content="World of Tanks Progress Calculator">
+  <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+  <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
+  <meta property="og:url" content="https://vurmil.github.io/wot/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="World of Tanks Progress Calculator">
+  <meta name="twitter:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+  <meta name="twitter:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
 
-    <!-- Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 
-    <!-- Load React and ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Load Babel for JSX transformation -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- React 18 -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-200">
 
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <script type="text/babel">
+  <script type="text/babel">
         // --- React App Code ---
 
         const BG_COLOR = 'bg-gray-900';
@@ -492,15 +492,15 @@
           );
           
           // Use a function to ensure the DOM is ready before rendering
-          const renderApp = () => {
-            const rootElement = document.getElementById('root');
-            if (rootElement) {
-              ReactDOM.render(<AppContainer />, rootElement);
-            }
-          };
+    const renderApp = () => {
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        const root = ReactDOM.createRoot(rootElement);
+        root.render(<AppContainer />);
+      }
+    };
 
-          // Use a standard DOMContentLoaded listener
-          document.addEventListener('DOMContentLoaded', renderApp);
-    </script>
+    document.addEventListener('DOMContentLoaded', renderApp);
+  </script>
 </body>
 </html>
