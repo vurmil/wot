@@ -10,7 +10,7 @@
     <meta property="og:title" content="World of Tanks Progress Calculator">
     <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
     <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
-    <meta property="og:url" content="https://twoja-nazwa-uzytkownika.github.io/nazwa-repozytorium/">
+    <meta property="og:url" content="https://vurmil.github.io/wot/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="World of Tanks Progress Calculator">
@@ -77,7 +77,14 @@
                     <div class="w-full h-8 rounded-full bg-gray-900 relative border-2 border-gray-700 overflow-hidden">
                         <div id="target-progress-bar" class="h-full absolute top-0 left-0 bg-amber-400 bg-opacity-30"></div>
                         <div id="current-progress-bar" class="h-full rounded-full transition-all duration-500 ease-out relative z-10"></div>
-                        <span id="progress-percentage" class="absolute inset-0 flex items-center justify-center font-bold text-sm z-20"></span>
+                        <div id="stage-markers-container" class="absolute inset-0 z-20 pointer-events-none">
+                            <div id="stage-1-label" class="absolute -top-6 text-xs text-center w-[12.5%] -left-[2%]">Stage I</div>
+                            <div id="stage-2-marker" class="absolute h-full w-0.5 bg-gray-400 opacity-50"></div>
+                            <div id="stage-2-label" class="absolute -top-6 text-xs text-center w-[12.5%] left-[31.5%]">Stage II</div>
+                            <div id="stage-3-marker" class="absolute h-full w-0.5 bg-gray-400 opacity-50"></div>
+                            <div id="stage-3-label" class="absolute -top-6 text-xs text-center w-[12.5%] left-[64.5%]">Stage III</div>
+                        </div>
+                        <span id="progress-percentage" class="absolute inset-0 flex items-center justify-center font-bold text-sm z-30"></span>
                     </div>
                     <div class="text-center">
                         <p id="progress-status"></p>
@@ -112,7 +119,7 @@
                         <h3 id="current-level" class="text-3xl font-extrabold"></h3>
                     </div>
                     <div class="bg-gray-800 p-4 rounded-lg">
-                        <p class="text-sm">Daily Average</p>
+                        <p class="text-sm">Daily average</p>
                         <h3 id="daily-average" class="text-3xl font-extrabold"></h3>
                     </div>
                 </div>
@@ -121,7 +128,7 @@
                     <h3 class="text-lg font-bold mb-2">Daily Calculations</h3>
                     <div class="mb-4">
                         <label for="days-per-week" class="block text-sm mb-1">
-                            Days played per week: <span id="days-per-week-value" class="font-bold">7</span>
+                            Days of play per week: <span id="days-per-week-value" class="font-bold">7</span>
                         </label>
                         <input
                             type="range"
@@ -158,7 +165,7 @@
                     <div class="text-center text-lg font-bold">
                         <p>Points from daily missions: <span id="points-from-missions">0</span></p>
                         <p>Points needed from battles: <span id="points-needed-from-battles">0</span></p>
-                        <p class="mt-2">Estimated number of battles: <span id="games-needed">0</span></p>
+                        <p class="mt-2">Estimated battles needed: <span id="games-needed">0</span></p>
                     </div>
                 </div>
             </div>
@@ -174,7 +181,7 @@
                 <div class="flex items-center space-x-2 text-gray-400">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zm32 224a32 32 0 1 1 -64 0 32 32 0 1 1 64 0z"/></svg>
                     <p>
-                        Note: Data is for demonstration purposes. Enter your own values for accurate calculations.
+                        Note: Data is for illustration. Enter your own values for accurate calculations.
                     </p>
                 </div>
             </div>
@@ -185,7 +192,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const eventData = {
               battlepass17: {
-                title: 'battlepass season XVII calculator',
+                title: 'Battle Pass XVII Calculator',
                 mode: 'Battlepass',
                 totalPoint: 7500,
                 timespan: {
@@ -196,7 +203,7 @@
                 },
               },
               battlepass15year: {
-                title: '15 anniversary field festival calculator',
+                title: '15th Anniversary Marathon Calculator',
                 mode: 'Marathon',
                 totalPoint: 2500,
                 timespan: {
@@ -239,6 +246,7 @@
             const pointsFromMissionsEl = document.getElementById('points-from-missions');
             const pointsNeededFromBattlesEl = document.getElementById('points-needed-from-battles');
             const gamesNeededEl = document.getElementById('games-needed');
+            const stageMarkersContainer = document.getElementById('stage-markers-container');
 
             const calculateAll = () => {
                 const currentEvent = eventData[activeEventId];
@@ -275,20 +283,30 @@
                 targetProgressBarEl.style.width = `${Math.min(100, targetProgressPercentage)}%`;
                 progressPercentageEl.textContent = `${Math.round(progressPercentage)}%`;
 
-                progressBarEl.className = `${progressPercentage >= 100 ? 'bg-green-500' : progressStatus > 0 ? 'bg-green-500' : 'bg-red-600'} h-full rounded-full transition-all duration-500 ease-out relative z-10`;
+                progressBarEl.className = `${progressPercentage >= 100 ? 'bg-green-500/70' : progressStatus > 0 ? 'bg-green-500/70' : 'bg-red-600'} h-full rounded-full transition-all duration-500 ease-out relative z-10`;
 
                 if (progressPercentage >= 100) {
-                    progressStatusEl.textContent = 'Congratulations! Goal achieved!';
+                    progressStatusEl.textContent = 'Congratulations! Goal reached!';
                     progressStatusEl.classList.remove('text-red-400');
                     progressStatusEl.classList.add('text-green-400');
                 } else if (progressStatus > 0) {
-                    progressStatusEl.textContent = `Ahead by ${progressStatus.toFixed(1)}%!`;
+                    progressStatusEl.textContent = `You are ahead by ${progressStatus.toFixed(1)}%!`;
                     progressStatusEl.classList.remove('text-red-400');
                     progressStatusEl.classList.add('text-green-400');
                 } else {
-                    progressStatusEl.textContent = `Behind by ${(progressStatus * -1).toFixed(1)}%.`;
+                    progressStatusEl.textContent = `You are behind by ${(progressStatus * -1).toFixed(1)}%.`;
                     progressStatusEl.classList.remove('text-green-400');
                     progressStatusEl.classList.add('text-red-400');
+                }
+                
+                if (currentEvent.mode === 'Battlepass') {
+                    stageMarkersContainer.classList.remove('hidden');
+                    const stage2Percentage = (2500 / currentEvent.totalPoint) * 100;
+                    const stage3Percentage = (5000 / currentEvent.totalPoint) * 100;
+                    document.getElementById('stage-2-marker').style.left = `${stage2Percentage}%`;
+                    document.getElementById('stage-3-marker').style.left = `${stage3Percentage}%`;
+                } else {
+                    stageMarkersContainer.classList.add('hidden');
                 }
 
                 let missionPoints = 0;
@@ -312,7 +330,7 @@
                 
                 let currentLevel = 0;
                 if (currentEvent.mode === 'Battlepass') {
-                    currentLevel = Math.min(75, Math.floor(currentProgress / 100) + 1);
+                    currentLevel = Math.min(150, Math.floor(currentProgress / 50) + 1);
                     levelLabelEl.textContent = 'Level';
                 } else {
                     currentLevel = Math.min(50, Math.floor(currentProgress / 50) + 1);
