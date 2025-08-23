@@ -10,7 +10,7 @@
     <meta property="og:title" content="WOT Battle Pass Calculator">
     <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
     <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+BATTLE+PASS+CALCULATOR">
-    <meta property="og:url" content="https://github.io/">
+    <meta property="og:url" content="https://vurmil.github.io/wot/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="WOT Battle Pass Calculator">
@@ -119,6 +119,13 @@
                             min="0"
                             max="2500"
                             class="w-full p-2 rounded-lg bg-gray-700 text-center"
+                        />
+                        <input
+                            type="range"
+                            id="current-stage-range"
+                            min="0"
+                            max="2500"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-700"
                         />
                     </div>
                     
@@ -289,6 +296,7 @@
             const stage2Completed = document.getElementById('stage-2-completed');
             const stage3Completed = document.getElementById('stage-3-completed');
             const currentStagePoints = document.getElementById('current-stage-points');
+            const currentStageRange = document.getElementById('current-stage-range');
             const currentProgressInput = document.getElementById('current-progress-input');
             const currentProgressRange = document.getElementById('current-progress-range');
 
@@ -436,8 +444,10 @@
                             stage2Completed.checked = savedState.completedStages[1] || false;
                             stage3Completed.checked = savedState.completedStages[2] || false;
                             currentStagePoints.value = savedState.currentStagePoints || 0;
+                            currentStageRange.value = savedState.currentStagePoints || 0;
                         } else {
                             currentProgressInput.value = savedState.currentProgress || 0;
+                            currentProgressRange.value = savedState.currentProgress || 0;
                         }
                     }
                 } catch (error) {
@@ -518,8 +528,10 @@
                             stage2Completed.checked = false;
                             stage3Completed.checked = false;
                             currentStagePoints.value = 0;
+                            currentStageRange.value = 0;
                         } else {
                             currentProgressInput.value = 0;
+                            currentProgressRange.value = 0;
                         }
                         showCorrectInputs();
                         updateEventButtonStyles(activeEventId);
@@ -543,10 +555,23 @@
             stage2Completed.addEventListener('change', handleBattlepassCheckboxes);
             stage3Completed.addEventListener('change', handleBattlepassCheckboxes);
             
-            currentStagePoints.addEventListener('input', updateUI);
-            
-            currentProgressInput.addEventListener('input', updateUI);
-            currentProgressRange.addEventListener('input', updateUI);
+            currentStagePoints.addEventListener('input', () => {
+                currentStageRange.value = currentStagePoints.value;
+                updateUI();
+            });
+            currentStageRange.addEventListener('input', () => {
+                currentStagePoints.value = currentStageRange.value;
+                updateUI();
+            });
+
+            currentProgressInput.addEventListener('input', () => {
+                currentProgressRange.value = currentProgressInput.value;
+                updateUI();
+            });
+            currentProgressRange.addEventListener('input', () => {
+                currentProgressInput.value = currentProgressRange.value;
+                updateUI();
+            });
             
             daysPerWeekRange.addEventListener('input', updateUI);
             dailyMissionsRange.addEventListener('input', updateUI);
