@@ -96,7 +96,7 @@
                     <label class="block mb-2 text-sm font-medium">Your current progress:</label>
                     
                     <div id="bp-inputs">
-                        <div class="flex items-center space-x-4 mb-2">
+                        <div class="flex items-center justify-center space-x-4 mb-2">
                             <div class="flex items-center">
                                 <input type="checkbox" id="stage-1-completed" class="rounded text-red-600 focus:ring-red-500 bg-gray-700 border-gray-600">
                                 <label for="stage-1-completed" class="ml-2 text-sm">Stage I completed</label>
@@ -174,27 +174,47 @@
                         <label for="days-per-week" class="block text-sm mb-1">
                             Playing days per week: <span id="days-per-week-value" class="font-bold">7</span>
                         </label>
-                        <input
-                            type="range"
-                            id="days-per-week"
-                            min="1"
-                            max="7"
-                            value="7"
-                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
-                        />
+                        <div class="relative w-full">
+                            <input
+                                type="range"
+                                id="days-per-week"
+                                min="1"
+                                max="7"
+                                value="7"
+                                class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                            />
+                            <div class="flex justify-between absolute w-full text-xs text-gray-400 top-4 px-1 pointer-events-none">
+                                <span>1 day</span>
+                                <span>2 days</span>
+                                <span>3 days</span>
+                                <span>4 days</span>
+                                <span>5 days</span>
+                                <span>6 days</span>
+                                <span>7 days</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-4">
                         <label for="daily-missions" class="block text-sm mb-1">
                             Daily missions: <span id="daily-missions-value" class="font-bold">0</span>
                         </label>
-                        <input
-                            type="range"
-                            id="daily-missions"
-                            min="0"
-                            max="4"
-                            value="0"
-                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
-                        />
+                        <div class="relative w-full">
+                            <input
+                                type="range"
+                                id="daily-missions"
+                                min="0"
+                                max="4"
+                                value="0"
+                                class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                            />
+                            <div class="flex justify-between absolute w-full text-xs text-gray-400 top-4 px-1 pointer-events-none">
+                                <span>0</span>
+                                <span>1</span>
+                                <span>2</span>
+                                <span>3</span>
+                                <span>4</span>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-4">
                         <label for="game-points" class="block text-sm mb-1">Points from battles (average):</label>
