@@ -430,8 +430,13 @@
             };
 
             const updateUI = () => {
+                daysPerWeek = parseInt(daysPerWeekRange.value);
+                dailyMissions = parseInt(dailyMissionsRange.value);
+                gamePoints = parseInt(gamePointsInput.value) || 0;
+                
                 daysPerWeekValue.textContent = daysPerWeek;
                 dailyMissionsValue.textContent = dailyMissions;
+                
                 calculateAll();
                 saveState();
             };
