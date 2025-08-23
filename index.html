@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WOT Battle Pass Calculator</title>
+    
+    <meta name="description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta name="keywords" content="World of Tanks, WOT, calculator, Battle Pass, Marathon, points, progress, event, player, tanks">
+    <meta property="og:title" content="WOT Battle Pass Calculator">
+    <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+BATTLE+PASS+CALCULATOR">
+    <meta property="og:url" content="https://vurmil.github.io/wot/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WOT Battle Pass Calculator">
+    <meta name="twitter:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
+    <meta name="twitter:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+BATTLE+PASS+CALCULATOR">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200">
+
+    <div id="app" class="min-h-screen bg-gray-900 text-gray-200 font-sans flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl p-6 space-y-6 rounded-xl shadow-2xl bg-gray-900 border-2 border-red-700">
+            <div class="flex flex-col items-center space-y-2">
+                <h1 class="text-4xl font-extrabold text-red-600">
+                    WOT Battle Pass Calculator
+                </h1>
+                <p class="text-center text-gray-400">
+                    Track your progress in World of Tanks events!
+                </p>
+            </div>
+
+            <div id="event-buttons" class="flex justify-center space-x-4">
+                <button
+                    id="btn-battlepass17"
+                    class="px-4 py-2 font-bold rounded-lg transition-all duration-300 bg-red-600 text-white shadow-lg"
+                    data-event="battlepass17">
+                    Battle Pass XVII
+                </button>
+                <button
+                    id="btn-battlepass15year"
+                    class="px-4 py-2 font-bold rounded-lg transition-all duration-300 bg-gray-700 text-gray-300 hover:bg-red-700"
+                    data-event="battlepass15year">
+                    Marathon
+                </button>
+            </div>
+
+            <div id="server-buttons" class="flex justify-center space-x-2 text-sm text-gray-400">
+                <button
+                    class="px-3 py-1 rounded-full font-bold transition-colors bg-red-600 text-white"
+                    data-server="EU">EU</button>
+                <button
+                    class="px-3 py-1 rounded-full font-bold transition-colors bg-gray-700 hover:bg-gray-600"
+                    data-server="US">US</button>
+                <button
+                    class="px-3 py-1 rounded-full font-bold transition-colors bg-gray-700 hover:bg-gray-600"
+                    data-server="ASIA">ASIA</button>
+                <button
+                    class="px-3 py-1 rounded-full font-bold transition-colors bg-gray-700 hover:bg-gray-600"
+                    data-server="CN">CN</button>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-inner border-2 border-gray-700">
+                <h2 id="event-title" class="text-xl font-bold text-center"></h2>
+                
+                <div class="w-full space-y-2">
+                    <div class="w-full h-8 rounded-full bg-gray-900 relative border-2 border-gray-700 overflow-hidden">
+                        
+                        <div id="target-progress-bar" class="h-full absolute top-0 left-0 bg-amber-400 bg-opacity-30"></div>
+                        
+                        <div id="current-progress-bar" class="h-full rounded-full transition-all duration-500 ease-out relative z-10"></div>
+                        <div id="stage-markers-container" class="absolute inset-0 z-20 pointer-events-none">
+                            <div id="stage-1-label" class="absolute -top-6 text-xs text-center w-[12.5%] -left-[2%]">Stage I</div>
+                            <div id="stage-2-marker" class="absolute h-full w-0.5 bg-gray-400 opacity-50"></div>
+                            <div id="stage-2-label" class="absolute -top-6 text-xs text-center w-[12.5%] left-[31.5%]">Stage II</div>
+                            <div id="stage-3-marker" class="absolute h-full w-0.5 bg-gray-400 opacity-50"></div>
+                            <div id="stage-3-label" class="absolute -top-6 text-xs text-center w-[12.5%] left-[64.5%]">Stage III</div>
+                        </div>
+                        <span id="progress-percentage" class="absolute inset-0 flex items-center justify-center font-bold text-sm z-30"></span>
+                    </div>
+                    <div class="text-center">
+                        <p id="progress-status"></p>
+                    </div>
+                </div>
+
+                <div class="w-full" id="progress-input-container">
+                    <label class="block mb-2 text-sm font-medium">Your current progress:</label>
+                    
+                    <div id="bp-inputs">
+                        <div class="flex items-center space-x-4 mb-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="stage-1-completed" class="rounded text-red-600 focus:ring-red-500 bg-gray-700 border-gray-600">
+                                <label for="stage-1-completed" class="ml-2 text-sm">Stage I completed</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="stage-2-completed" class="rounded text-red-600 focus:ring-red-500 bg-gray-700 border-gray-600" disabled>
+                                <label for="stage-2-completed" class="ml-2 text-sm">Stage II completed</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="stage-3-completed" class="rounded text-red-600 focus:ring-red-500 bg-gray-700 border-gray-600" disabled>
+                                <label for="stage-3-completed" class="ml-2 text-sm">Stage III completed</label>
+                            </div>
+                        </div>
+                        <label for="current-stage-points" class="block mb-2 text-sm font-medium">
+                            Points in current stage:
+                        </label>
+                        <input
+                            type="number"
+                            id="current-stage-points"
+                            min="0"
+                            max="2500"
+                            class="w-full p-2 rounded-lg bg-gray-700 text-center"
+                        />
+                    </div>
+                    
+                    <div id="marathon-inputs" class="hidden">
+                         <label for="current-progress-input" class="block mb-2 text-sm font-medium">
+                            Your current progress (points):
+                        </label>
+                        <input
+                            type="number"
+                            id="current-progress-input"
+                            min="0"
+                            class="w-full p-2 mb-4 rounded-lg bg-gray-700 text-center"
+                        />
+                        <input
+                            type="range"
+                            id="current-progress-range"
+                            min="0"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-700"
+                        />
+                    </div>
+                    <div class="flex justify-between text-sm mt-2">
+                        <span>0</span>
+                        <span id="progress-values"></span>
+                    </div>
+                </div>
+
+                <div class="grid w-full grid-cols-2 gap-4 text-center">
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="text-sm">Your Level</p>
+                        <h3 id="current-level" class="text-2xl font-extrabold"></h3>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-lg">
+                        <p class="text-sm">Required level for today</p>
+                        <h3 id="target-level" class="text-2xl font-extrabold text-amber-400"></h3>
+                    </div>
+                </div>
+                
+                <div class="w-full p-4 rounded-lg bg-gray-700 mt-6">
+                    <h3 class="text-lg font-bold mb-2">Daily calculations</h3>
+                    <div class="mb-4">
+                        <label for="daily-average" class="block text-sm mb-1">
+                            Daily average: <span id="daily-average" class="font-bold text-red-400 text-lg">0</span> points
+                        </label>
+                    </div>
+                    <div class="mb-4">
+                        <label for="days-per-week" class="block text-sm mb-1">
+                            Playing days per week: <span id="days-per-week-value" class="font-bold">7</span>
+                        </label>
+                        <input
+                            type="range"
+                            id="days-per-week"
+                            min="1"
+                            max="7"
+                            value="7"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                        />
+                    </div>
+                    <div class="mb-4">
+                        <label for="daily-missions" class="block text-sm mb-1">
+                            Daily missions: <span id="daily-missions-value" class="font-bold">0</span>
+                        </label>
+                        <input
+                            type="range"
+                            id="daily-missions"
+                            min="0"
+                            max="4"
+                            value="0"
+                            class="w-full h-2 rounded-lg appearance-none cursor-pointer range-lg bg-gray-600"
+                        />
+                    </div>
+                    <div class="mb-4">
+                        <label for="game-points" class="block text-sm mb-1">Points from battles (average):</label>
+                        <input
+                            type="number"
+                            id="game-points"
+                            min="0"
+                            value="0"
+                            class="w-full p-2 rounded-lg bg-gray-600 text-center"
+                        />
+                    </div>
+                    <div class="text-center text-lg font-bold">
+                        <p>Points from missions: <span id="points-from-missions">0</span></p>
+                        <p>Points needed from battles: <span id="points-needed-from-battles">0</span></p>
+                        <p class="mt-2">Estimated battles needed: <span id="games-needed" class="text-red-400 text-lg">0</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-lg bg-gray-800 border border-gray-700">
+                <div class="flex items-center space-x-2 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-4 h-4" fill="currentColor"><path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v32H0V112c0-26.5 21.5-48 48-48h48V32c0-17.7 14.3-32 32-32zm0 128H32V480c0 17.7 14.3 32 32 32H384c17.7 0 32-14.3 32-32V128H128zm96 64c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32s-32-14.3-32-32V224c0-17.7 14.3-32 32-32zm-96 96c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7 14.3 32 32 32s32-14.3 32-32V288z"/></svg>
+                    <p id="time-remaining"></p>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-lg bg-gray-800 border border-gray-700">
+                <div class="flex items-center space-x-2 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-4 h-4" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm0-384c13.3 0 24 10.7 24 24V264c0 13.3-10.7 24-24 24s-24-10.7-24-24V152c0-13.3 10.7-24 24-24zm32 224a32 32 0 1 1 -64 0 32 32 0 1 1 64 0z"/></svg>
+                    <p>
+                        Note: The data is for reference. Enter your own values for accurate calculations.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventData = {
+              battlepass17: {
+                title: 'Battle Pass XVII Calculator',
+                mode: 'Battlepass',
+                totalPoint: 7500,
+                timespan: {
+                  ASIA: [new Date('2025/06/03 07:30:00 UTC+8'), new Date('2025/09/03 05:30:00 UTC+8')],
+                  CN: [new Date('2025/06/05 08:30:00 UTC+8'), new Date('2025/09/04 01:59:00 UTC+8')],
+                  US: [new Date('2025/06/03 06:30:00 UTC-7'), new Date('2025/09/04 07:30:00 UTC-7')],
+                  EU: [new Date('2025/06/04 09:00:00 UTC+2'), new Date('2025/09/04 00:30:00 UTC+2')],
+                },
+              },
+              battlepass15year: {
+                title: 'Anniversary Marathon Calculator',
+                mode: 'Marathon',
+                totalPoint: 2500,
+                timespan: {
+                  ASIA: [new Date('2025/08/08 08:00:00 UTC+8'), new Date('2025/09/01 08:00:00 UTC+8')],
+                  CN: [new Date('2025/08/08 08:00:00 UTC+8'), new Date('2025/09/01 08:00:00 UTC+8')],
+                  US: [new Date('2025/08/08 22:00:00 UTC-7'), new Date('2025/09/01 22:00:00 UTC-7')],
+                  EU: [new Date('2025/08/08 12:00:00 UTC+2'), new Date('2025/09/01 12:00:00 UTC+2')],
+                },
+              },
+            };
+
+            let activeEventId = 'battlepass17';
+            let currentServer = 'EU';
+            let currentProgress = 0;
+            let daysPerWeek = 7;
+            let dailyMissions = 0;
+            let gamePoints = 0;
+            let dailyAverage = 0;
+            let gamesNeeded = 0;
+
+            const eventTitleEl = document.getElementById('event-title');
+            const eventButtons = document.getElementById('event-buttons');
+            const serverButtons = document.getElementById('server-buttons');
+            const progressPercentageEl = document.getElementById('progress-percentage');
+            const progressStatusEl = document.getElementById('progress-status');
+            const progressBarEl = document.getElementById('current-progress-bar');
+            const targetProgressBarEl = document.getElementById('target-progress-bar');
+            const progressValuesEl = document.getElementById('progress-values');
+            const currentLevelEl = document.getElementById('current-level');
+            const targetLevelEl = document.getElementById('target-level');
+            const dailyAverageEl = document.getElementById('daily-average');
+            const timeRemainingEl = document.getElementById('time-remaining');
+            const daysPerWeekRange = document.getElementById('days-per-week');
+            const daysPerWeekValue = document.getElementById('days-per-week-value');
+            const dailyMissionsRange = document.getElementById('daily-missions');
+            const dailyMissionsValue = document.getElementById('daily-missions-value');
+            const gamePointsInput = document.getElementById('game-points');
+            const pointsFromMissionsEl = document.getElementById('points-from-missions');
+            const pointsNeededFromBattlesEl = document.getElementById('points-needed-from-battles');
+            const gamesNeededEl = document.getElementById('games-needed');
+            const stageMarkersContainer = document.getElementById('stage-markers-container');
+            const bpInputs = document.getElementById('bp-inputs');
+            const marathonInputs = document.getElementById('marathon-inputs');
+
+            const stage1Completed = document.getElementById('stage-1-completed');
+            const stage2Completed = document.getElementById('stage-2-completed');
+            const stage3Completed = document.getElementById('stage-3-completed');
+            const currentStagePoints = document.getElementById('current-stage-points');
+            const currentProgressInput = document.getElementById('current-progress-input');
+            const currentProgressRange = document.getElementById('current-progress-range');
+
+            const calculateAll = () => {
+                const currentEvent = eventData[activeEventId];
+                const totalPoints = currentEvent.totalPoint;
+                const now = new Date();
+                const eventStart = currentEvent.timespan[currentServer][0];
+                const eventEnd = currentEvent.timespan[currentServer][1];
+                const timeRemainingMs = eventEnd - now;
+
+                if (currentEvent.mode === 'Battlepass') {
+                    const stage1Points = stage1Completed.checked ? 2500 : 0;
+                    const stage2Points = stage2Completed.checked ? 2500 : 0;
+                    const stage3Points = stage3Completed.checked ? 2500 : 0;
+                    const currentStagePointsValue = parseInt(currentStagePoints.value) || 0;
+                    currentProgress = stage1Points + stage2Points + stage3Points + currentStagePointsValue;
+                    currentStagePoints.max = 2500;
+                } else {
+                    currentProgress = parseInt(currentProgressInput.value) || 0;
+                    currentProgressRange.max = totalPoints;
+                }
+                
+                if (timeRemainingMs < 0) {
+                    timeRemainingEl.textContent = 'Event has ended!';
+                    dailyAverage = 0;
+                } else if (now < eventStart) {
+                    timeRemainingEl.textContent = 'Event has not started yet.';
+                    dailyAverage = 0;
+                } else {
+                    const remainingDays = Math.max(0, Math.floor(timeRemainingMs / (1000 * 60 * 60 * 24)));
+                    const remainingHours = Math.floor((timeRemainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const remainingMinutes = Math.floor((timeRemainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const remainingSeconds = Math.floor((timeRemainingMs % (1000 * 60)) / 1000);
+                    timeRemainingEl.textContent = `${remainingDays} days, ${String(remainingHours).padStart(2, '0')}:${String(remainingMinutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')} remaining`;
+                    
+                    const totalPlayingDays = remainingDays * (daysPerWeek / 7);
+                    dailyAverage = (totalPoints - currentProgress) / (totalPlayingDays || 1);
+                }
+
+                const progressPercentage = (currentProgress / totalPoints) * 100;
+                const totalDurationMs = eventEnd - eventStart;
+                const elapsedMs = now - eventStart;
+                const idealPoints = (totalPoints * elapsedMs) / totalDurationMs;
+                const targetProgressPercentage = (elapsedMs / totalDurationMs) * 100;
+                const progressStatus = progressPercentage - targetProgressPercentage;
+
+                progressBarEl.style.width = `${Math.min(100, progressPercentage)}%`;
+                targetProgressBarEl.style.width = `${Math.min(100, targetProgressPercentage)}%`;
+                progressPercentageEl.textContent = `${Math.round(progressPercentage)}%`;
+
+                progressBarEl.className = `${progressPercentage >= 100 ? 'bg-green-500/70' : progressStatus > 0 ? 'bg-green-500/70' : 'bg-red-600'} h-full rounded-full transition-all duration-500 ease-out relative z-10`;
+
+                if (progressPercentage >= 100) {
+                    progressStatusEl.textContent = 'Congratulations! Goal achieved!';
+                    progressStatusEl.classList.remove('text-red-400');
+                    progressStatusEl.classList.add('text-green-400');
+                } else if (progressStatus > 0) {
+                    progressStatusEl.textContent = `You are ahead by ${progressStatus.toFixed(1)}%!`;
+                    progressStatusEl.classList.remove('text-red-400');
+                    progressStatusEl.classList.add('text-green-400');
+                } else {
+                    progressStatusEl.textContent = `You are behind by ${(progressStatus * -1).toFixed(1)}%.`;
+                    progressStatusEl.classList.remove('text-green-400');
+                    progressStatusEl.classList.add('text-red-400');
+                }
+                
+                if (currentEvent.mode === 'Battlepass') {
+                    stageMarkersContainer.classList.remove('hidden');
+                    const stage2Percentage = (2500 / currentEvent.totalPoint) * 100;
+                    const stage3Percentage = (5000 / currentEvent.totalPoint) * 100;
+                    document.getElementById('stage-2-marker').style.left = `${stage2Percentage}%`;
+                    document.getElementById('stage-3-marker').style.left = `${stage3Percentage}%`;
+                } else {
+                    stageMarkersContainer.classList.add('hidden');
+                }
+
+                let missionPoints = 0;
+                switch (dailyMissions) {
+                    case 1: missionPoints = 10; break;
+                    case 2: missionPoints = 10 + 15; break;
+                    case 3: missionPoints = 10 + 15 + 20; break;
+                    case 4: missionPoints = 10 + 15 + 20 + 25; break;
+                }
+                pointsFromMissionsEl.textContent = missionPoints;
+
+                const pointsNeededFromBattles = Math.max(0, Math.ceil(dailyAverage) - missionPoints);
+                gamesNeeded = Math.ceil(pointsNeededFromBattles / (gamePoints || 1));
+                
+                eventTitleEl.textContent = currentEvent.title;
+                progressValuesEl.textContent = `${currentProgress.toLocaleString()} / ${totalPoints.toLocaleString()}`;
+                
+                let currentLevel = Math.floor(currentProgress / 50) + 1;
+                let targetLevel = Math.floor(idealPoints / 50) + 1;
+
+                const formatLevelDisplay = (level) => {
+                    if (currentEvent.mode === 'Battlepass' && level > 50) {
+                        const stage = Math.floor((level - 1) / 50) + 1;
+                        const levelInStage = (level - 1) % 50 + 1;
+                        return `Stage ${stage}, Level ${levelInStage}`;
+                    }
+                    return level;
+                };
+
+                currentLevelEl.textContent = formatLevelDisplay(currentLevel);
+                targetLevelEl.textContent = formatLevelDisplay(targetLevel);
+                
+                dailyAverageEl.textContent = Math.ceil(dailyAverage);
+                pointsNeededFromBattlesEl.textContent = pointsNeededFromBattles;
+                gamesNeededEl.textContent = gamesNeeded;
+            };
+
+            const updateUI = () => {
+                daysPerWeekValue.textContent = daysPerWeek;
+                dailyMissionsValue.textContent = dailyMissions;
+                calculateAll();
+                saveState();
+            };
+            
+            const handleBattlepassCheckboxes = () => {
+                stage2Completed.disabled = !stage1Completed.checked;
+                stage3Completed.disabled = !stage2Completed.checked;
+                if (!stage2Completed.checked) {
+                    stage3Completed.checked = false;
+                }
+                if (!stage1Completed.checked) {
+                    stage2Completed.checked = false;
+                    stage3Completed.checked = false;
+                }
+                updateUI();
+            };
+
+            const loadState = () => {
+                try {
+                    const savedState = JSON.parse(localStorage.getItem('wot_calculator_state'));
+                    if (savedState) {
+                        activeEventId = savedState.activeEventId;
+                        currentServer = savedState.currentServer;
+                        daysPerWeek = savedState.daysPerWeek;
+                        dailyMissions = savedState.dailyMissions;
+                        gamePoints = savedState.gamePoints;
+                        
+                        if (savedState.activeEventId === 'battlepass17') {
+                            stage1Completed.checked = savedState.completedStages[0] || false;
+                            stage2Completed.checked = savedState.completedStages[1] || false;
+                            stage3Completed.checked = savedState.completedStages[2] || false;
+                            currentStagePoints.value = savedState.currentStagePoints || 0;
+                        } else {
+                            currentProgressInput.value = savedState.currentProgress || 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error loading state:", error);
+                }
+            };
+            
+            const saveState = () => {
+                try {
+                    const stateToSave = {
+                        activeEventId,
+                        currentServer,
+                        daysPerWeek,
+                        dailyMissions,
+                        gamePoints
+                    };
+                    if (activeEventId === 'battlepass17') {
+                        stateToSave.completedStages = [stage1Completed.checked, stage2Completed.checked, stage3Completed.checked];
+                        stateToSave.currentStagePoints = parseInt(currentStagePoints.value) || 0;
+                    } else {
+                        stateToSave.currentProgress = parseInt(currentProgressInput.value) || 0;
+                    }
+                    localStorage.setItem('wot_calculator_state', JSON.stringify(stateToSave));
+                } catch (error) {
+                    console.error("Error saving state:", error);
+                }
+            };
+            
+            const showCorrectInputs = () => {
+                if (activeEventId === 'battlepass17') {
+                    bpInputs.classList.remove('hidden');
+                    marathonInputs.classList.add('hidden');
+                    handleBattlepassCheckboxes();
+                } else {
+                    bpInputs.classList.add('hidden');
+                    marathonInputs.classList.remove('hidden');
+                }
+            };
+
+            const setupEventButtons = () => {
+                eventButtons.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const newEventId = e.target.dataset.event;
+                        if (activeEventId !== newEventId) {
+                            activeEventId = newEventId;
+                            if (newEventId === 'battlepass17') {
+                                stage1Completed.checked = false;
+                                stage2Completed.checked = false;
+                                stage3Completed.checked = false;
+                                currentStagePoints.value = 0;
+                            } else {
+                                currentProgressInput.value = 0;
+                            }
+
+                            document.getElementById('btn-' + activeEventId).classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-red-700');
+                            document.getElementById('btn-' + activeEventId).classList.add('bg-red-600', 'text-white', 'shadow-lg');
+                            document.getElementById('btn-' + (newEventId === 'battlepass17' ? 'battlepass15year' : 'battlepass17')).classList.remove('bg-red-600', 'text-white', 'shadow-lg');
+                            document.getElementById('btn-' + (newEventId === 'battlepass17' ? 'battlepass15year' : 'battlepass17')).classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+                            showCorrectInputs();
+                            updateUI();
+                        }
+                    });
+                });
+            };
+
+            const setupServerButtons = () => {
+                serverButtons.querySelectorAll('button').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const newServer = e.target.dataset.server;
+                        if (currentServer !== newServer) {
+                            currentServer = newServer;
+                            serverButtons.querySelectorAll('button').forEach(sBtn => {
+                                sBtn.classList.remove('bg-red-600', 'text-white');
+                                sBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                            });
+                            e.target.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                            e.target.classList.add('bg-red-600', 'text-white');
+                            updateUI();
+                        }
+                    });
+                });
+            };
+
+            loadState();
+            showCorrectInputs();
+            updateUI();
+            setInterval(calculateAll, 1000);
+            
+            setupEventButtons();
+            setupServerButtons();
+            
+            stage1Completed.addEventListener('change', handleBattlepassCheckboxes);
+            stage2Completed.addEventListener('change', handleBattlepassCheckboxes);
+            stage3Completed.addEventListener('change', handleBattlepassCheckboxes);
+            
+            currentStagePoints.addEventListener('input', updateUI);
+            
+            currentProgressInput.addEventListener('input', updateUI);
+            currentProgressRange.addEventListener('input', updateUI);
+            
+            daysPerWeekRange.addEventListener('input', updateUI);
+            dailyMissionsRange.addEventListener('input', updateUI);
+            gamePointsInput.addEventListener('input', updateUI);
+            
+            document.getElementById('btn-' + activeEventId).click();
+            serverButtons.querySelector(`[data-server="${currentServer}"]`).click();
+
+            daysPerWeekRange.value = daysPerWeek;
+            dailyMissionsRange.value = dailyMissions;
+            gamePointsInput.value = gamePoints;
+
+        });
+    </script>
+</body>
+</html>
