@@ -17,6 +17,7 @@
     <meta name="twitter:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
     <meta name="twitter:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+CALCULATOR">
 
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -26,8 +27,10 @@
         }
     </style>
 
+    <!-- Load React and ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Load Babel for JSX transformation -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-200">
@@ -35,6 +38,8 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // --- React App Code ---
+
         const BG_COLOR = 'bg-gray-900';
         const TEXT_COLOR = 'text-gray-200';
         const CARD_BG = 'bg-gray-800';
@@ -486,10 +491,16 @@
             </div>
           );
           
-          ReactDOM.render(<AppContainer />, document.getElementById('root'));
-        };
+          // Use a function to ensure the DOM is ready before rendering
+          const renderApp = () => {
+            const rootElement = document.getElementById('root');
+            if (rootElement) {
+              ReactDOM.render(<AppContainer />, rootElement);
+            }
+          };
 
-        
+          // Use a standard DOMContentLoaded listener
+          document.addEventListener('DOMContentLoaded', renderApp);
     </script>
 </body>
 </html>
