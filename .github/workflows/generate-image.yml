@@ -40,10 +40,10 @@ jobs:
               "n": 1
             }')
 
-    echo $RESPONSE | jq -r '.data[0].b64_json' | base64 --decode > "$FILE"
+        echo $RESPONSE | jq -r '.data[0].b64_json' | base64 --decode > "$FILE"
 
-    echo "Wygenerowany plik: $FILE"
-    ls -lh "$FILE"
+        echo "Wygenerowany plik: $FILE"
+        ls -lh "$FILE"
 
 
       - name: Commit new image
