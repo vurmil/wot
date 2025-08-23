@@ -27,18 +27,24 @@ jobs:
         run: |
           DATE=$(date +%Y-%m-%d)
           FILE="images/${DATE}.png"
-          
-          # Wywołanie API DALL-E (prompt dopasuj do "World of Tanks")
-          curl https://api.openai.com/v1/images/generations \
+    
+          mkdir -p images
+
+          RESPONSE=$(curl -s https://api.openai.com/v1/images/generations \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $OPENAI_API_KEY" \
             -d '{
               "model": "gpt-image-1",
               "prompt": "World of Tanks battlefield, cinematic style, ultra realistic",
-              "size": "1024x1024"
-            }' | jq -r '.data[0].b64_json' | base64 --decode > $FILE
+              "size": "1024x1024",
+              "n": 1
+            }')
 
-          echo "Wygenerowany plik: $FILE"
+    echo $RESPONSE | jq -r '.data[0].b64_json' | base64 --decode > "$FILE"
+
+    echo "Wygenerowany plik: $FILE"
+    ls -lh "$FILE"
+
 
       - name: Commit new image
         run: |
