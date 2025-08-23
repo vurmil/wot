@@ -253,6 +253,19 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const today = new Date();
+            const dateStr = today.toISOString().split("T")[0];
+            const backgroundUrl = `images/${dateStr}.png`;
+
+            document.body.style.backgroundImage = `url('${backgroundUrl}')`;
+            document.body.style.backgroundSize = "cover";
+            document.body.style.backgroundPosition = "center";
+            document.body.style.backgroundAttachment = "fixed";
+        });
+    </script>
+    
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const eventData = {
               battlepass17: {
