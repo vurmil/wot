@@ -10,7 +10,7 @@
     <meta property="og:title" content="WOT Battle Pass Calculator">
     <meta property="og:description" content="Track your progress in World of Tanks Battle Pass and Marathon events. Calculate daily points and battles needed to reach your goal.">
     <meta property="og:image" content="https://placehold.co/600x315/FF0000/FFFFFF?text=WOT+BATTLE+PASS+CALCULATOR">
-    <meta property="og:url" content="https://vurmil.github.io/wot/">
+    <meta property="og:url" content="https://github.io/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="WOT Battle Pass Calculator">
@@ -477,57 +477,67 @@
                 }
             };
 
-            const setupEventButtons = () => {
+            const updateEventButtonStyles = (eventId) => {
                 eventButtons.querySelectorAll('button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const newEventId = e.target.dataset.event;
-                        if (activeEventId !== newEventId) {
-                            activeEventId = newEventId;
-                            if (newEventId === 'battlepass17') {
-                                stage1Completed.checked = false;
-                                stage2Completed.checked = false;
-                                stage3Completed.checked = false;
-                                currentStagePoints.value = 0;
-                            } else {
-                                currentProgressInput.value = 0;
-                            }
-
-                            document.getElementById('btn-' + activeEventId).classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-red-700');
-                            document.getElementById('btn-' + activeEventId).classList.add('bg-red-600', 'text-white', 'shadow-lg');
-                            document.getElementById('btn-' + (newEventId === 'battlepass17' ? 'battlepass15year' : 'battlepass17')).classList.remove('bg-red-600', 'text-white', 'shadow-lg');
-                            document.getElementById('btn-' + (newEventId === 'battlepass17' ? 'battlepass15year' : 'battlepass17')).classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
-                            showCorrectInputs();
-                            updateUI();
-                        }
-                    });
+                    if (btn.dataset.event === eventId) {
+                        btn.classList.remove('bg-gray-700', 'text-gray-300', 'hover:bg-red-700');
+                        btn.classList.add('bg-red-600', 'text-white', 'shadow-lg');
+                    } else {
+                        btn.classList.remove('bg-red-600', 'text-white', 'shadow-lg');
+                        btn.classList.add('bg-gray-700', 'text-gray-300', 'hover:bg-gray-600');
+                    }
                 });
             };
 
-            const setupServerButtons = () => {
+            const updateServerButtonStyles = (serverId) => {
                 serverButtons.querySelectorAll('button').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const newServer = e.target.dataset.server;
-                        if (currentServer !== newServer) {
-                            currentServer = newServer;
-                            serverButtons.querySelectorAll('button').forEach(sBtn => {
-                                sBtn.classList.remove('bg-red-600', 'text-white');
-                                sBtn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-                            });
-                            e.target.classList.remove('bg-gray-700', 'hover:bg-gray-600');
-                            e.target.classList.add('bg-red-600', 'text-white');
-                            updateUI();
-                        }
-                    });
+                    if (btn.dataset.server === serverId) {
+                        btn.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+                        btn.classList.add('bg-red-600', 'text-white');
+                    } else {
+                        btn.classList.remove('bg-red-600', 'text-white');
+                        btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+                    }
                 });
             };
 
             loadState();
             showCorrectInputs();
+            updateEventButtonStyles(activeEventId);
+            updateServerButtonStyles(currentServer);
             updateUI();
             setInterval(calculateAll, 1000);
             
-            setupEventButtons();
-            setupServerButtons();
+            eventButtons.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const newEventId = e.target.dataset.event;
+                    if (activeEventId !== newEventId) {
+                        activeEventId = newEventId;
+                        if (newEventId === 'battlepass17') {
+                            stage1Completed.checked = false;
+                            stage2Completed.checked = false;
+                            stage3Completed.checked = false;
+                            currentStagePoints.value = 0;
+                        } else {
+                            currentProgressInput.value = 0;
+                        }
+                        showCorrectInputs();
+                        updateEventButtonStyles(activeEventId);
+                        updateUI();
+                    }
+                });
+            });
+
+            serverButtons.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const newServer = e.target.dataset.server;
+                    if (currentServer !== newServer) {
+                        currentServer = newServer;
+                        updateServerButtonStyles(currentServer);
+                        updateUI();
+                    }
+                });
+            });
             
             stage1Completed.addEventListener('change', handleBattlepassCheckboxes);
             stage2Completed.addEventListener('change', handleBattlepassCheckboxes);
@@ -542,9 +552,6 @@
             dailyMissionsRange.addEventListener('input', updateUI);
             gamePointsInput.addEventListener('input', updateUI);
             
-            document.getElementById('btn-' + activeEventId).click();
-            serverButtons.querySelector(`[data-server="${currentServer}"]`).click();
-
             daysPerWeekRange.value = daysPerWeek;
             dailyMissionsRange.value = dailyMissions;
             gamePointsInput.value = gamePoints;
